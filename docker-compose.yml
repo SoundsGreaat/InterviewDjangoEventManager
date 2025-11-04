@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:17
+    container_name: event_manager_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DB_NAME:-event_manager_db}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    container_name: event_manager_web
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  static_volume:
