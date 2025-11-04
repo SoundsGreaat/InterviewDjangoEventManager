@@ -9,6 +9,7 @@ Django REST API for managing events with user registration and authentication.
 - Event registration system
 - Permission control (organizers only edit their events)
 - Interactive API documentation (Swagger/ReDoc)
+- Automated email confirmations for event registration/unregistration
 
 ## Tech Stack
 
@@ -23,6 +24,10 @@ Django REST API for managing events with user registration and authentication.
 ### Environment Variables
 
 Create `.env` from `.env.example`
+
+Remove `env_file` section in `docker-compose.yml` so it will use `.env` file.
+
+For a test run, you can leave the contents of the `.env.example` file unchanged, but in this case, email delivery will not work.
 
 ### Docker
 
@@ -64,30 +69,35 @@ docker-compose up --build
 ## Project Structure
 
 ```
-├── events/                          # Events application
-│   ├── migrations/                  # Database migrations for events
-│   ├── admin.py                     # Django admin configuration
-│   ├── apps.py                      # App configuration
-│   ├── authentication.py            # Custom authentication schemes for drf-spectacular
-│   ├── models.py                    # Event and EventRegistration models
-│   ├── permissions.py               # Custom permissions (IsOrganizerOrReadOnly)
-│   ├── serializers.py               # DRF serializers for events
-│   ├── urls.py                      # Event API routes
-│   └── views.py                     # Event ViewSets and endpoints
-├── InterviewDjangoEventManager/     # Main project configuration
-│   ├── settings.py                  # Django settings (DB, REST Framework, drf-spectacular)
-│   ├── urls.py                      # Main URL configuration
-│   ├── wsgi.py                      # WSGI configuration for production
-│   └── asgi.py                      # ASGI configuration
-├── users/                           # Users application
-│   ├── serializers.py               # User serializers (registration, login, detail)
-│   ├── urls.py                      # User API routes
-│   └── views.py                     # User views (register, login, UserViewSet)
-├── docker-compose.yml               # Docker Compose configuration (db + web)
-├── Dockerfile                       # Docker image definition
-├── entrypoint.sh                    # Container startup script (wait for DB, migrations, collectstatic)
-├── manage.py                        # Django management script
-├── requirements.txt                 # Python dependencies
-├── .env.example                     # Environment variables template
-└── README.md                        # This file
+├── events/                                     # Events application
+│   ├── migrations/                             # Database migrations for events
+│   ├── admin.py                                # Django admin configuration
+│   ├── apps.py                                 # App configuration
+│   ├── authentication.py                       # Custom authentication schemes for drf-spectacular
+│   ├── emails.py                               # Email sending utilities
+│   ├── models.py                               # Event and EventRegistration models
+│   ├── permissions.py                          # Custom permissions (IsOrganizerOrReadOnly)
+│   ├── serializers.py                          # DRF serializers for events
+│   ├── urls.py                                 # Event API routes
+│   └── views.py                                # Event ViewSets and endpoints
+├── InterviewDjangoEventManager/                # Main project configuration
+│   ├── settings.py                             # Django settings (DB, REST Framework, drf-spectacular)
+│   ├── urls.py                                 # Main URL configuration
+│   ├── wsgi.py                                 # WSGI configuration for production
+│   └── asgi.py                                 # ASGI configuration
+├── templates/                                  # HTML templates
+│   └── emails/                                 # Email templates
+│       ├── registration_confirmation.html      # Registration email template
+│       └── unregistration_confirmation.html    # Unregistration email template
+├── users/                                      # Users application
+│   ├── serializers.py                          # User serializers (registration, login, detail)
+│   ├── urls.py                                 # User API routes
+│   └── views.py                                # User views (register, login, UserViewSet)
+├── docker-compose.yml                          # Docker Compose configuration (db + web)
+├── Dockerfile                                  # Docker image definition
+├── entrypoint.sh                               # Container startup script (wait for DB, migrations, collectstatic)
+├── manage.py                                   # Django management script
+├── requirements.txt                            # Python dependencies
+├── .env.example                                # Environment variables template
+└── README.md                                   # This file
 ```

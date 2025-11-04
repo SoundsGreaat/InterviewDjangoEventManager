@@ -13,6 +13,7 @@ from .serializers import (
     EventRegistrationSerializer,
     AttendeeSerializer
 )
+from .emails import send_registration_confirmation_email, send_unregistration_email
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -154,6 +155,8 @@ class EventViewSet(viewsets.ModelViewSet):
             status='confirmed'
         )
 
+        send_registration_confirmation_email(user, event)
+
         return Response(
             EventRegistrationSerializer(registration).data,
             status=status.HTTP_201_CREATED
@@ -178,6 +181,9 @@ class EventViewSet(viewsets.ModelViewSet):
         try:
             registration = EventRegistration.objects.get(user=user, event=event)
             registration.delete()
+
+            send_unregistration_email(user, event)
+
             return Response(
                 {'message': 'Successfully unregistered from event'},
                 status=status.HTTP_200_OK
